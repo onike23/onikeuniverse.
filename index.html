@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>onikeunivers</title>
+    <style>
+        /* Base Reset & Styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container with requested white dotted line */
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #000000;
+            border: 3px dotted #ffffff;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        /* Fantastic Futuristic Logo & Header Styling */
+        header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px dotted #ffffff;
+            position: sticky;
+            top: 0;
+            background-color: #000000;
+            z-index: 100;
+        }
+
+        .brand-logo-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Glowing Tech Matrix Text Branding */
+        .brand-logo-main {
+            font-size: 2.3rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .brand-logo-sub {
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #aaaaaa;
+            margin-top: 2px;
+            border-top: 1px solid #333;
+            padding-top: 4px;
+            width: 100%;
+        }
+
+        /* Vertical Navigation Stack - Sticky Shortcut Anchors */
+        nav {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px dotted #ffffff;
+            position: sticky;
+            top: 105px;
+            background-color: #000000;
+            z-index: 99;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px dotted #222222;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        /* Mini-icon logo styles within menus */
+        .nav-icon-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background-color: #111111;
+            border: 1px dotted #ffffff;
+            font-size: 0.85rem;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn:active {
+            color: #ffffff;
+            background-color: #111111;
+            font-weight: bold;
+        }
+
+        .nav-btn:hover .nav-icon-logo {
+            background-color: #ffffff;
+            color: #000000;
+            border-style: solid;
+            box-shadow: 0 0 5px #ffffff;
+        }
+
+        /* Continuous Vertical Page Stream Layout */
+        .page-stream {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Section Layout Headers with Integrated Badges */
+        .page-heading-layout {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-icon-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px dotted #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #111111;
+            font-size: 1rem;
+        }
+
+        .page {
+            padding: 35px 20px;
+            border-bottom: 2px dotted #333333;
+            scroll-margin-top: 310px; /* Aligns target layout perfectly under sticky header/nav */
+        }
+
+        .page:last-of-type {
+            border-bottom: none;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #aaaaaa;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            background-color: #111111;
+            border: 1px dotted #ffffff;
+            color: #ffffff;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus {
+            border-style: solid;
+        }
+
+        button.primary-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button.primary-btn:hover {
+            background-color: #cccccc;
+        }
+
+        /* Cards & Lists */
+        .card {
+            background-color: #111111;
+            border: 1px dotted #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Feed & Posts */
+        .post-action-bar {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .action-btn:hover {
+            background-color: #222222;
+        }
+
+        .comments-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dotted #333333;
+        }
+
+        .comment-item {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #cccccc;
+        }
+
+        /* Profile Page Elements */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar-collage {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px dotted #ffffff;
+            overflow: hidden;
+            background: linear-gradient(45deg, #222, #444);
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .collage-quarter {
+            width: 50%;
+            height: 50%;
+            background-color: #333;
+            border: 0.5px solid #000;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Status indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Footer Attribution */
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
+            color: #888888;
+            border-top: 1px dotted #ffffff;
+            background-color: #000000;
+        }
+
+        /* Utility classes */
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-row {
+            padding: 10px;
+            border-bottom: 1px dotted #222222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Premium Logo Header Integration -->
+        <header>
+            <div class="brand-logo-container">
+                <div class="brand-logo-main">Onikeunivers</div>
+                <div class="brand-logo-sub">Cosmic Matrix Web Node</div>
+            </div>
+            <div id="auth-status" style="font-size: 0.8rem; margin-top: 8px; color: #aaaaaa; letter-spacing: 1px;">Access Level: Guest Node</div>
+        </header>
+
+        <!-- Vertical Navigation Anchor Menu with Interactive Logo Badges -->
+        <nav id="app-nav">
+            <a href="#auth-page" class="nav-btn"><span class="nav-icon-logo">🔐</span> Account Security (Login / Register)</a>
+            <a href="#home-page" class="nav-btn"><span class="nav-icon-logo">🏠</span> Home Feed Matrix</a>
+            <a href="#profile-page" class="nav-btn"><span class="nav-icon-logo">🅿️</span> Personal Profile Node</a>
+            <a href="#messages-page" class="nav-btn"><span class="nav-icon-logo">💬</span> Encrypted Comms</a>
+            <a href="#friends-page" class="nav-btn"><span class="nav-icon-logo">👥</span> Peer Directory</a>
