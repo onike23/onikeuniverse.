@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnikeUniverse 🪐</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,sans-serif}
+body{background:#070712;color:#fff;padding-bottom:70px}
+.top-strip{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#0a0a18;border-bottom:1px solid #1f1f3a;position:sticky;top:0;z-index:100}
+.text-galaxy{background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.card{background:#11112a;border:1px solid #2a2a5a;border-radius:14px;padding:14px;margin:10px 16px}
+.post-card{background:#11112a;border:1px solid #252545;border-radius:16px;padding:14px;margin:12px 16px}
+.follow-btn{background:linear-gradient(90deg,#8b5cf6,#22d3ee);border:none;padding:6px 14px;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.follow-btn.outline{background:transparent;border:1px solid #2a2a5a;color:#8b8bb0}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#0a0a18;border-top:1px solid #1f1f3a;padding:8px 0;z-index:100}
+.bottom-nav div{font-size:11px;text-align:center;color:#8b8bb0;cursor:pointer}
+.bottom-nav div.active{color:#a78bfa}
+.page{display:none;padding-top:6px}
+.page.active{display:block}
+input{background:#1a1a32;border:1px solid #2a2a5a;border-radius:12px;padding:10px 14px;color:#fff;width:100%}
+/* SMALL BADGE ONLY - WITH OFFICIAL TOOLTIP */
+.ou-official{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;font-size:8px;margin-left:5px;vertical-align:middle;border:1px solid #fbbf24;cursor:pointer;position:relative}
+.ou-official:hover::after{content:'OnikeUniverse Official 🪐';position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#0a0a18;border:1px solid #fbbf24;color:#fbbf24;font-size:9px;padding:4px 8px;border-radius:8px;white-space:nowrap;z-index:999}
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <b class="text-galaxy" onclick="showPage('blog')">🪐 OnikeUniverse</b>
+  <div style="display:flex;gap:14px;font-size:18px;cursor:pointer">
+    <span onclick="showPage('messages')" title="Messages">📩</span>
+    <span onclick="showPage('menu')" title="Menu">☰</span>
+    <span onclick="showPage('blog')" title="Home">🏠</span>
+    <span onclick="showPage('friends')" title="Search">🔍</span>
+  </div>
+</div>
+
+<!-- HOME / BLOG -->
+<div id="page-blog" class="page active">
+  <div class="card"><input id="postInput" placeholder="What's happening in the universe?"><button class="follow-btn" style="margin-top:8px;width:100%" onclick="createPost()">Post 🪐</button></div>
+  <div id="postsContainer"></div>
+</div>
+
+<!-- MESSAGES -->
+<div id="page-messages" class="page"><div class="card">📩 Messages<div id="messagesList" style="margin-top:10px;color:#8b8bb0">No messages yet</div></div></div>
+
+<!-- NOTIFICATIONS -->
+<div id="page-notifications" class="page"><div class="card">🔔 Notifications<div style="margin-top:10px;color:#8b8bb0">No notifications yet</div></div></div>
+
+<!-- SEARCH / FRIENDS -->
+<div id="page-friends" class="page"><div class="card"><input id="searchInput" placeholder="Search users..." oninput="searchUsers()"></div><div id="friendsList"></div></div>
+
+<!-- PROFILE -->
+<div id="page-profile" class="page">
+  <div class="card" style="text-align:center">
+    <img id="pAvatar" src="https://i.pravatar.cc/100" style="width:80px;height:80px;border-radius:50%;border:3px solid #8b5cf6">
+    <h3 id="pName" style="margin-top:8px;display:flex;align-items:center;justify-content:center"></h3>
+    <div style="display:flex;justify-content:space-around;margin-top:14px">
+      <div><b id="statPosts">0</b><br><span style="font-size:11px;color:#8b8bb0">Posts</span></div>
+      <div><b id="statFollowers">0</b><br><span style="font-size:11px;color:#8b8bb0">Followers</span></div>
+      <div><b id="statFollowing">0</b><br><span style="font-size:11px;color:#8b8bb0">Following</span></div>
+    </div>
+  </div>
+  <div id="myPosts"></div>
+</div>
+
+<!-- MENU - NO HOME, NO NOTIF, NO MESSAGES, NO CHATROOM -->
+<div id="page-menu" class="page">
+  <div style="padding:20px;text-align:center;background:radial-gradient(ellipse,#1a1040,#0a0a18);border:1px solid #2a2a5a;border-radius:18px;margin:10px 16px">
+    <div style="position:relative;display:inline-block">
+      <img id="menuAvatar" src="https://i.pravatar.cc/100" style="width:90px;height:90px;border-radius:50%;border:3px solid #8b5cf6">
+      <div id="menuVerifyBadge" style="position:absolute;bottom:0;right:0;width:22px;height:22px;background:linear-gradient(135deg,#f59e0b,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #0a0a18;display:none;font-size:10px">🪐</div>
+    </div>
+    <h3 id="menuName" class="text-galaxy" style="margin-top:10px;display:flex;align-items:center;justify-content:center"></h3>
+    <span id="menuEmail" style="font-size:12px;color:#8b8bb0">supreme@onike.universe</span><br>
+    <div id="verifyStatus" style="margin-top:10px"></div>
+  </div>
+  <div class="card" style="cursor:pointer" onclick="showPage('profile')">👤 My Profile <span style="float:right">›</span></div>
+  <div class="card" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="requestVerify()"><span>🪐 Verify Official User</span><span id="verifyBtnText" style="background:#1a1a32;border:1px solid #fbbf24;color:#fbbf24;padding:4px 12px;border-radius:12px;font-size:11px">Locked</span></div>
+  <div class="card" style="cursor:pointer" onclick="alert('Settings soon')">⚙️ Settings <span style="float:right">›</span></div>
+  <div class="card" style="cursor:pointer" onclick="alert('Privacy soon')">🔒 Privacy <span style="float:right">›</span></div>
+  <div class="card" style="cursor:pointer" onclick="alert('Help soon')">💬 Help <span style="float:right">›</span></div>
+  <div class="card" style="cursor:pointer;background:#1a1020;border-color:#5a2a2a" onclick="logout()">🚪 Logout <span style="float:right">›</span></div>
+  <div style="text-align:center;font-size:10px;color:#6b7280;margin:20px">OnikeUniverse v2.1.0 • Planet Verified<br>🪐 OnikeUniverse Official System</div>
+</div>
+
+<div class="bottom-nav">
+  <div id="nav-home" class="active" onclick="showPage('blog')">🏠<br>Home</div>
+  <div id="nav-search" onclick="showPage('friends')">🔍<br>Search</div>
+  <div id="nav-msg" onclick="showPage('messages')">📩<br>Messages</div>
+  <div id="nav-notif" onclick="showPage('notifications')">🔔<br>Notif</div>
+  <div id="nav-profile" onclick="showPage('profile')">👤<br>Profile</div>
+</div>
+
+<script>
+let USER = {id:'1',name:'Supreme',email:'supreme@onike.universe',avatar:'https://i.pravatar.cc/100'};
+let POSTS = [{id:1,user:'Supreme',avatar:USER.avatar,content:'Welcome to OnikeUniverse 🪐',likes:12,liked:false,comments:[],time:Date.now()-60000}];
+let FOLLOWED = new Set();
+let IS_VERIFIED = localStorage.getItem('onike_verified')==='true';
+let FOLLOWERS_COUNT = parseInt(localStorage.getItem('onike_followers')||'0');
+let ALL_USERS = ['Supreme','GalaxyKid','StarLord','Nova','AstroQueen','CosmicRay'];
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.bottom-nav div').forEach(d=>d.classList.remove('active'));
+  if(id==='blog') document.getElementById('nav-home').classList.add('active');
+  if(id==='friends') document.getElementById('nav-search').classList.add('active');
+  if(id==='messages') document.getElementById('nav-msg').classList.add('active');
+  if(id==='notifications') document.getElementById('nav-notif').classList.add('active');
+  if(id==='profile') document.getElementById('nav-profile').classList.add('active');
+  if(id==='profile'||id==='menu') updateVerifyUI();
+  if(id==='blog') renderPosts();
+  if(id==='friends') renderFriends(ALL_USERS);
+  if(id==='profile') renderMyPosts();
+}
+function getMyStats(){return {myPosts:POSTS.filter(p=>p.user===USER.name).length,following:FOLLOWED.size,followers:FOLLOWERS_COUNT};}
+function updateVerifyUI(){
+  let s=getMyStats();
+  document.getElementById('statPosts').innerText=s.myPosts;document.getElementById('statFollowers').innerText=s.followers;document.getElementById('statFollowing').innerText=s.following;
+  document.getElementById('menuAvatar').src=USER.avatar;document.getElementById('pAvatar').src=USER.avatar;document.getElementById('menuEmail').innerText=USER.email;
+  let nameEl=document.getElementById('menuName'),pNameEl=document.getElementById('pName'),badge=document.getElementById('menuVerifyBadge'),status=document.getElementById('verifyStatus'),btn=document.getElementById('verifyBtnText');
+  if(IS_VERIFIED){
+    nameEl.innerHTML=`${USER.name}<span class="ou-official" title="OnikeUniverse Official">🪐</span>`;
+    pNameEl.innerHTML=`${USER.name}<span class="ou-official" title="OnikeUniverse Official">🪐</span>`;
+    badge.style.display='flex';status.innerHTML=`<span style="color:#fbbf24;font-size:11px">🪐 OnikeUniverse Official</span>`;btn.innerText='🪐 Verified';btn.style.background='linear-gradient(90deg,#f59e0b,#8b5cf6)';btn.style.color='#fff';btn.style.border='none';
+  }else{
+    nameEl.innerHTML=`${USER.name}`;pNameEl.innerHTML=`${USER.name}`;badge.style.display='none';
+    let need=[];if(s.myPosts<20)need.push(`${20-s.myPosts} posts`);if(s.followers<100)need.push(`${100-s.followers} followers`);if(s.following<10)need.push(`${10-s.following} following`);
+    status.innerHTML=need.length===0?`<span style="color:#22c55e;font-size:11px">✅ Eligible</span>`:`<span style="font-size:10px;color:#8b8bb0">${s.myPosts}/20 • ${s.followers}/100 • ${s.following}/10<br>Need: ${need.join(', ')}</span>`;btn.innerText=need.length===0?'Verify Now':'Locked';
+  }
+}
+function requestVerify(){
+  if(IS_VERIFIED){alert('Already Official 🪐');return;}
+  let s=getMyStats();
+  if(s.myPosts<20){alert(`Need 20 posts, you have ${s.myPosts}`);return;}
+  if(s.followers<100){alert(`Need 100 followers, you have ${s.followers}`);return;}
+  if(s.following<10){alert(`Need 10 following, you have ${s.following}`);return;}
+  if(confirm('Become OnikeUniverse Official 🪐?')){IS_VERIFIED=true;localStorage.setItem('onike_verified','true');updateVerifyUI();renderPosts();alert('🎉 Official!');}
+}
+function postCard(p){
+  let isOfficial=(p.user===USER.name && IS_VERIFIED);
+  let smallBadge=isOfficial?`<span class="ou-official" title="OnikeUniverse Official">🪐</span>`:'';
+  return `<div class="post-card"><div style="display:flex;gap:10px;align-items:center"><img src="${p.avatar}" style="width:40px;height:40px;border-radius:50%"><div style="flex:1"><b style="font-size:14px">${p.user}${smallBadge}</b><br><span style="font-size:11px;color:#8b8bb0">${Math.floor((Date.now()-p.time)/60000)}m ago</span></div><button class="${FOLLOWED.has(p.user)?'follow-btn':'follow-btn outline'}" onclick="followUser('${p.user}',this)">${FOLLOWED.has(p.user)?'Following':'+ Follow'}</button></div><p style="font-size:13px;margin:12px 0">${p.content||''}</p><div style="display:flex;gap:18px;margin-top:12px;border-top:1px solid #252545;padding-top:10px"><button style="border:none;background:transparent;color:#8b8bb0" onclick="toggleLike(${p.id})">💜 ${p.likes}</button></div></div>`;
+}
+function renderPosts(){document.getElementById('postsContainer').innerHTML=POSTS.slice().reverse().map(p=>postCard(p)).join('');}
+function renderMyPosts(){document.getElementById('myPosts').innerHTML=POSTS.filter(p=>p.user===USER.name).reverse().map(p=>postCard(p)).join('');}
+function createPost(){let v=document.getElementById('postInput').value;if(!v.trim())return;POSTS.push({id:Date.now(),user:USER.name,avatar:USER.avatar,content:v,likes:0,liked:false,comments:[],time:Date.now()});document.getElementById('postInput').value='';renderPosts();updateVerifyUI();}
+function toggleLike(id){let p=POSTS.find(x=>x.id===id);if(!p)return;p.likes++;renderPosts();}
+function followUser(name,btn){if(FOLLOWED.has(name)){FOLLOWED.delete(name);btn.innerText='+ Follow';btn.className='follow-btn outline';}else{FOLLOWED.add(name);btn.innerText='Following';btn.className='follow-btn';if(Math.random()>0.5){FOLLOWERS_COUNT++;localStorage.setItem('onike_followers',FOLLOWERS_COUNT);}}updateVerifyUI();}
+function renderFriends(list){document.getElementById('friendsList').innerHTML=list.map(n=>`<div class="card" style="display:flex;justify-content:space-between"><span>👤 ${n}</span><button class="${FOLLOWED.has(n)?'follow-btn':'follow-btn outline'}" onclick="followUser('${n}',this)">${FOLLOWED.has(n)?'Following':'+ Follow'}</button></div>`).join('');}
+function searchUsers(){let q=document.getElementById('searchInput').value.toLowerCase();renderFriends(ALL_USERS.filter(u=>u.toLowerCase().includes(q)));}
+function logout(){localStorage.clear();location.reload();}
+updateVerifyUI();renderPosts();
+</script>
+</body>
+</html>
