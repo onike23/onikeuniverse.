@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ONIKEUNIVERSE - Home Main Page</title>
+<link rel="icon" href="onikeuniverse_logo.webp">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;} body{margin:0; font-family:sans-serif; background:#111b21; color:#e9edef; padding-bottom:50px;}
+.header{background:#202c33; position:sticky; top:0; z-index:20;}
+.top{display:flex; justify-content:space-between; padding:10px 14px; align-items:center;}
+.my-pic{width:30px; height:30px; border-radius:50%; border:2px solid #00a884;}
+.tabs{display:flex; overflow-x:auto; scrollbar-width:none;}.tabs button{flex:1; white-space:nowrap; background:none; border:none; color:#8696a0; padding:12px 8px; cursor:pointer; font-size:11px; font-weight:700; min-width:70px;}.tabs button.active{color:#00a884; border-bottom:2px solid #00a884;}
+.page{display:none;} #page-home{display:block;}
+.post{background:#202c33; margin:8px 0; border-radius:10px; overflow:hidden;}
+.post-head{display:flex; gap:10px; padding:10px 12px; align-items:center;}
+.post-head img{width:40px; height:40px; border-radius:50%;}
+.post-info{flex:1;}
+.post-name{font-size:13px; font-weight:700; display:flex; align-items:center; gap:5px; flex-wrap:wrap;}
+.post-meta{font-size:10px; color:#8696a0;}
+.post-img{width:100%; max-height:360px; object-fit:cover; background:#0b141a;}
+.post-text{padding:8px 12px; font-size:13px; line-height:1.4;}
+.post-actions{display:flex; gap:16px; padding:8px 12px; border-top:0.5px solid #2a3942; border-bottom:0.5px solid #2a3942;}
+.post-actions span{font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; color:#8696a0;}
+.post-actions span.liked{color:#00a884; font-weight:700;}
+.trending-badge{background:#ff8c00; color:white; font-size:8px; padding:2px 6px; border-radius:10px; font-weight:800;}
+.comments{padding:8px 12px;}
+.comment{font-size:12px; padding:3px 0;}
+.comment b{font-size:11px;}
+.view-all{font-size:11px; color:#00a884; cursor:pointer; padding:4px 0;}
+.comment-box{display:flex; gap:6px; padding:8px 12px; background:#182533; align-items:center;}
+.comment-box input{flex:1; background:#2a3942; border:none; border-radius:20px; padding:7px 12px; color:white; font-size:12px;}
+.follow-btn{background:#00a884; color:white; border:none; padding:4px 10px; border-radius:14px; font-size:10px; cursor:pointer;}
+.follow-btn.following{background:#2a3942; color:#8696a0;}
+.row{display:flex; gap:10px; padding:10px 14px; border-bottom:0.5px solid #2a3942; align-items:center; cursor:pointer;}
+.row img{width:46px; height:46px; border-radius:50%; object-fit:cover;}
+.filter-bar{display:flex; gap:5px; padding:6px 10px; flex-wrap:wrap; background:#182533;}
+.filter-bar button{border:none; padding:5px 10px; border-radius:14px; font-size:10px; background:#2a3942; color:white; cursor:pointer;}
+.filter-bar button.active{background:#00a884;}
+#menu-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; display:none;}
+#menu-panel{position:fixed; top:0; right:0; width:78%; max-width:300px; height:100%; background:#202c33; z-index:60; transform:translateX(100%); transition:0.3s;}
+#menu-panel.open{transform:translateX(0);}
+.menu-item{padding:14px 16px; display:flex; align-items:center; gap:12px; border-bottom:0.5px solid #2a3942; cursor:pointer; font-size:14px;}
+.input-group{padding:8px 12px; background:#202c33; border-bottom:0.5px solid #2a3942;}
+.input-group label{font-size:10px; color:#00a884;}
+.input-group input,.input-group select,.input-group textarea{width:100%; background:#2a3942; border:none; border-radius:6px; padding:8px; color:white; font-size:12px; margin-top:3px;}
+#chat-inside{position:fixed; bottom:0; left:0; right:0; height:72vh; background:#0b141a; z-index:100; display:none; flex-direction:column; border-radius:16px 16px 0 0;}
+#comment-modal{position:fixed; bottom:0; left:0; right:0; height:75vh; background:#111b21; z-index:90; display:none; flex-direction:column; border-radius:16px 16px 0 0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="top">
+<h1 style="margin:0; font-size:16px;">ONIKEUNIVERSE</h1>
+<div style="display:flex; gap:10px; align-items:center;">
+<img id="my-header-pic" class="my-pic" src="">
+<span onclick="openMenu()" style="font-size:22px; cursor:pointer;">☰</span>
+</div>
+</div>
+<div class="tabs">
+<button onclick="showPage('home')" id="tab-home" class="active">🏠 HOME</button>
+<button onclick="showPage('friends')" id="tab-friends">👥 FRIENDS</button>
+<button onclick="showPage('chats')" id="tab-chats">💬 CHATS</button>
+<button onclick="showPage('profile')" id="tab-profile">👤 PROFILE</button>
+</div>
+</div>
+
+<div id="menu-overlay" onclick="closeMenu()"></div>
+<div id="menu-panel">
+<div style="padding:16px; background:#111b21; display:flex; align-items:center; gap:10px;">
+<img id="menu-pic" src="" style="width:46px; height:46px; border-radius:50%; border:2px solid #00a884;">
+<div><div id="menu-name" style="font-size:13px; font-weight:700;">Name</div><div id="menu-details" style="font-size:10px; color:#00a884;">Details</div></div>
+<span onclick="closeMenu()" style="margin-left:auto; cursor:pointer;">✕</span>
+</div>
+<div class="menu-item" onclick="openFromMenu('requests')">📥 Requests <span id="menu-req-count" style="margin-left:auto; background:#00a884; font-size:10px; padding:2px 7px; border-radius:10px;">0</span></div>
+<div class="menu-item" onclick="openFromMenu('setting')">⚙️ Setting</div>
+<div class="menu-item" onclick="openFromMenu('report')">⚠️ Report to Admin</div>
+<div class="menu-item" style="margin-top:20px; color:#f15c6d;" onclick="logout()">🚪 Logout</div>
+<div style="padding:14px; font-size:9px; color:#8696a0; text-align:center;">ONIKEUNIVERSE v2.0<br>Kampala • Uganda</div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page">
+<div style="display:flex; gap:6px; padding:8px 10px; background:#182533; position:sticky; top:84px; z-index:5;">
+<button onclick="setHomeFilter('recent')" id="hf-recent" style="flex:1; background:#00a884; color:white; border:none; padding:7px; border-radius:18px; font-size:11px; font-weight:700;">🕒 Recent</button>
+<button onclick="setHomeFilter('trending')" id="hf-trending" style="flex:1; background:#2a3942; color:white; border:none; padding:7px; border-radius:18px; font-size:11px;">🔥 Trending</button>
+<button onclick="setHomeFilter('following')" id="hf-following" style="flex:1; background:#2a3942; color:white; border:none; padding:7px; border-radius:18px; font-size:11px;">👥 Following</button>
+</div>
+<div style="padding:8px 12px; background:#111b21;"><button onclick="document.getElementById('create-post').style.display=document.getElementById('create-post').style.display==='none'?'block':'none'" style="width:100%; background:#202c33; color:#8696a0; border:none; padding:10px; border-radius:20px; text-align:left; font-size:12px;">📝 What's on your mind? Create post...</button></div>
+<div id="create-post" style="display:none; background:#202c33; padding:10px; margin:8px; border-radius:10px;">
+<textarea id="new-post-text" rows="3" placeholder="Write blog..." style="width:100%; background:#2a3942; border:none; border-radius:8px; padding:8px; color:white; font-size:12px;"></textarea>
+<input id="new-post-img" placeholder="Image URL (optional)" style="width:100%; background:#2a3942; border:none; border-radius:6px; padding:7px; color:white; font-size:11px; margin-top:6px;">
+<button onclick="createPost()" style="width:100%; background:#00a884; color:white; border:none; padding:8px; border-radius:8px; margin-top:8px; font-weight:700;">Post to Home</button>
+</div>
+<div id="home-feed"></div>
+</div>
+
+<!-- FRIENDS PAGE -->
+<div id="page-friends" class="page">
+<div style="background:#182533; padding:6px 10px; font-size:10px; color:#00a884;">MY: <b id="total-f">0</b> • ONLINE: <b id="online-f">0</b> • <span id="filter-info"></span></div>
+<div style="padding:6px 10px;"><input id="friend-search" placeholder="🔍 Search friends" oninput="renderFriendsPage()" style="width:100%; background:#202c33; border:none; border-radius:8px; padding:8px 12px; color:white; font-size:12px;"></div>
+<div class="filter-bar">
+<button id="g-All" class="active" onclick="setFilter('gender','All')">All <span id="count-all">0</span></button>
+<button id="g-Male" onclick="setFilter
