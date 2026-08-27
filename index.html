@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bondhuu.com - Full Clone</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#f0f2f5;color:#050505}
+header{background:#fff;border-bottom:1px solid #dddfe2;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:30}
+.logo{font-weight:900;font-size:24px;color:#1877f2}.logo b{color:#000}
+.btn-blue{background:#1877f2;color:#fff;border:0;padding:10px 16px;border-radius:8px;font-weight:800;cursor:pointer}
+.btn-light{background:#e4e6eb;color:#050505;border:0;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+nav{background:#fff;border-bottom:1px solid #dddfe2;display:flex;overflow:auto;gap:6px;padding:8px;position:sticky;top:52px;z-index:20}
+nav button{background:#f0f2f5;border:0;padding:10px 14px;border-radius:20px;font-weight:600;font-size:12px;white-space:nowrap;cursor:pointer}
+nav button.active{background:#1877f2;color:#fff}
+.page{display:none;max-width:1100px;margin:auto;padding:10px}.page.active{display:block}
+.card{background:#fff;border:1px solid #dddfe2;border-radius:10px;padding:12px;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}@media(max-width:700px){.grid3{grid-template-columns:1fr 1fr}}
+.avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.post-img{width:100%;border-radius:10px;margin-top:8px;max-height:420px;object-fit:cover}
+textarea,input,select{width:100%;border:1px solid #ccd0d5;border-radius:8px;padding:10px;margin-top:6px;background:#f0f2f5}
+.action-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.action-row button{background:#f0f2f5;border:0;padding:7px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-weight:600}
+.online{width:10px;height:10px;background:#31a24c;border-radius:50%;display:inline-block;border:2px solid #fff}
+.progress{height:8px;background:#e4e6eb;border-radius:10px;overflow:hidden;margin:6px 0}.progress div{height:100%;background:#1877f2;transition:.5s}
+.badge{background:#1877f2;color:#fff;padding:2px 6px;border-radius:10px;font-size:10px}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">Bondhuu<b>.com</b> <small id="onlineCount" style="font-size:11px;color:#31a24c">• Live</small></div>
+<div style="display:flex;gap:8px"><button class="btn-light" onclick="showPage('home')">Log In</button><button class="btn-blue" onclick="showPage('home')">Join Bondhuu Today</button></div>
+</header>
+
+<nav>
+<button onclick="showPage('home')" id="b-home" class="active">🏠 Feed</button>
+<button onclick="showPage('friends')" id="b-friends">👥 Friends</button>
+<button onclick="showPage('groups')" id="b-groups">👪 Groups</button>
+<button onclick="showPage('chatroom')" id="b-chatroom">💬 Chat Rooms</button>
+<button onclick="showPage('messages')" id="b-messages">✉️ Private Msgs</button>
+<button onclick="showPage('photos')" id="b-photos">📸 Photos/Albums</button>
+<button onclick="showPage('events')" id="b-events">📅 Events</button>
+<button onclick="showPage('pages')" id="b-pages">⭐ Pages</button>
+<button onclick="showPage('business')" id="b-business">🏢 Businesses</button>
+<button onclick="showPage('market')" id="b-market">🛒 Marketplace</button>
+<button onclick="showPage('profile')" id="b-profile">👤 Profile</button>
+<button onclick="showPage('notifs')" id="b-notifs">🔔 Notifs</button>
+<button onclick="showPage('menu')" id="b-menu">☰ Menu</button>
+</nav>
+
+<script>function showPage(p){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById(p).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('b-'+p).classList.add('active');if(p==='menu')updateVerify()}</script>
+
+<!-- FEED - Share Stories -->
+<div id="home" class="page active">
+<div class="card">
+<div style="display:flex;gap:8px;align-items:center"><img id="myAvatarHome" src="https://i.pravatar.cc/100?img=33" class="avatar"><b id="myNameHome">Supreme</b><span class="online"></span></div>
+<textarea id="newPost" placeholder="Share your stories... what's happening?"></textarea>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+<button class="btn-light" onclick="document.getElementById('photoInput').click()">📷 Photo/Video</button>
+<button class="btn-light" onclick="document.getElementById('albumInput').click()">🖼️ Album</button>
+<button class="btn-blue" onclick="addPost()">Post</button>
+</div>
+<input type="file" id="photoInput" accept="image/*,video/*" hidden>
+<input type="file" id="albumInput" accept="image/*" multiple hidden>
+<img id="preview" style="display:none;width:100%;border-radius:10px;margin-top:8px">
+<div id="galleryPreview" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px"></div>
+</div>
+<div id="feed"></div>
+</div>
+
+<div id="friends" class="page"><div class="card"><input id="friendSearch" placeholder="Find and connect with friends..." oninput="renderFriends()"></div><div id="friendsList" class="grid2"></div></div>
+
+<div id="groups" class="page">
+<div class="card"><h3>👪 Join Groups - Based on hobbies, location, interests</h3><input id="groupSearch" placeholder="Search groups..."><button class="btn-blue" style="margin-top:8px" onclick="createGroup()">+ Create Group</button></div>
+<div id="groupsList" class="grid2"></div>
+</div>
+
+<div id="chatroom" class="page">
+<div class="card"><h3>💬 Public Chat Rooms - Meet new people</h3><input id="roomName" placeholder="Room name e.g. Kampala Friends"><button class="btn-blue" style="margin-top:6px" onclick="createRoom()">+ Create Room</button></div>
+<div id="roomsList"></div>
+<div class="card"><div id="roomChatBox" style="height:260px;overflow:auto;border:1px solid #ddd;border-radius:8px;padding:8px;background:#f0f2f5"></div><div style="display:flex;gap:6px;margin-top:8px"><input id="roomInput" placeholder="Type in chat room..."><button class="btn-blue" style="width:80px" onclick="sendRoomMsg()">Send</button></div></div>
+</div>
+
+<div id="messages" class="page"><div class="card"><input id="msgSearch" placeholder="Search private messages..." oninput="renderMessages()"><div id="onlineUsers"></div></div><div class="card"><div id="chatBox" style="height:280px;overflow:auto;border:1px solid #ddd;border-radius:8px;padding:8px;background:#f0f2f5"></div><div style="display:flex;gap:6px;margin-top:8px"><input id="chatInput" placeholder="Private message... secure"><button class="btn-blue" style="width:80px" onclick="sendMessage()">Send</button></div></div></div>
+
+<div id="photos" class="page"><div class="card"><h3>📸 Photos, Videos, Albums - Backup photos</h3><p style="font-size:12px;color:#666">Your albums - click to view</p><div id="albumsList" class="grid3"></div></div><div id="photosList" class="grid3"></div></div>
+
+<div id="events" class="page"><div class="card"><h3>📅 Local Social Events</h3><input id="eventTitle" placeholder="Event title"><input id="eventDate" type="date"><button class="btn-blue" style="margin-top:6px" onclick="createEvent()">+ Create Event & Make Plans</button></div><div id="eventsList"></div></div>
+
+<div id="pages" class="page"><div class="card"><h3>⭐ Follow Artists, Websites, Companies</h3><input id="pageSearch" placeholder="Search artists..."><button class="btn-blue" style="margin-top:6px" onclick="createPage()">+ Follow Page</button></div><div id="pagesList" class="grid2"></div></div>
+
+<div id="business" class="page"><div class="card"><h3>🏢 Local Businesses - Reviews, Hours, Pictures</h3><input id="bizName" placeholder="Business name"><button class="btn-blue" style="margin-top:6px" onclick="createBusiness()">+ Add Business</button></div><div id="bizList" class="grid2"></div></div>
+
+<div id="market" class="page"><div class="card"><h3>🛒 Buy and Sell Locally - Marketplace</h3><input id="itemName" placeholder="Item name"><input id="itemPrice" placeholder="Price UGX" type="number"><input type="file" id="marketPhoto" accept="image/*"><button class="btn-blue" style="margin-top:6px" onclick="createMarketItem()">+ Sell Item</button></div><div id="marketList" class="grid2"></div></div>
+
+<div id="profile" class="page">
+<div class="card" style="padding:0;overflow:hidden"><div id="coverDiv" style="height:120px;background:linear-gradient(90deg,#1877f2,#60a5fa)"></div><img id="profilePic" src="https://i.pravatar.cc/100?img=33" style="width:80px;height:80px;border-radius:50%;border:4px solid #fff;margin:-40px 0 0 16px"><div style="padding:12px"><h2 id="fullNameDisplay"></h2><p id="verifyBadge" style="color:#1877f2;display:none">✔ Official</p><p id="countryDisplay"></p><p id="bioDisplay" style="color:#666"></p><p id="preferDisplay" style="color:#1877f2;font-size:12px"></p><div style="display:flex;gap:12px;margin:8px 0"><b id="followersCount">0</b> Followers <b id="followingCount">0</b> Following <b id="likesCount">0</b> Likes</div><button class="btn-light" onclick="document.getElementById('profileEdit').style.display='block'">Edit Profile</button></div></div>
+<div id="profileEdit" class="card" style="display:none"><input id="editFullName" placeholder="Full Name"><input id="editCountry" placeholder="Country"><input id="editBio" placeholder="Bio"><input id="editPrefer" placeholder="Prefers"><input type="file" id="avatarInput" accept="image/*"><input type="file" id="coverInput" accept="image/*"><button class="btn-blue" style="width:100%;margin-top:8px" onclick="saveProfile()">Save</button></div>
+<div id="myPosts"></div>
+</div>
+
+<div id="notifs" class="page"><div class="card"><h3>🔔 Notifications - When friends like and comment</h3></div><div id="notifList"></div></div>
+
+<div id="menu" class="page">
+<div class="card"><h3>Works on All Phones 📱</h3><p style="font-size:12px;color:#666">Bondhuu designed to work on all devices - from latest smartphones to basic feature phones. No phone left behind! OnikeUniverse keeps this.</p></div>
+<div class="card"><h4>✅ Official Verification</h4><div>Posts <span id="taskPostsText"></span> <span id="tickPosts"></span><div class="progress"><div id="barPosts"></div></div></div><div>Likes <span id="taskLikesText"></span> <span id="tickLikes"></span><div class="progress"><div id="barLikes"></div></div></div><div>Followers <span id="taskFollowersText"></span> <span id="tickFollowers"></span><div class="progress"><div id="barFollowers"></div></div></div><div>Following <span id="taskFollowingText"></span> <span id="tickFollowing"></span><div class="progress"><div id="barFollowing"></div></div></div><button id="verifyBtn" class="btn-blue" style="width:100%;margin-top:8px" onclick="verifyNow()">Verify</button></div>
+<div class="card"><button style="background:#ff3b30;color:#fff;border:0;padding:10px;border-radius:8px;width:100%;font-weight:800" onclick="if(confirm('Logout?')){localStorage.clear();location.reload()}">Logout</button></div>
+</div>
+
+<script>
+let uid=localStorage.getItem('ou_uid')||'user_'+Math.random().toString(36).slice(2,6);localStorage.setItem('ou_uid',uid);
+let profile=JSON.parse(localStorage.getItem('ou_profile_bondhuu_full')||'null')||{fullName:'Supreme Onike',country:'🇺🇬 Uganda',bio:'Bondhuu.com - Social Network',prefer:'Friends, Family, Interests',avatar:'https://i.pravatar.cc/100?img=33',cover:'',followers:0,following:0,likes:0,verified:false};
+let posts=JSON.parse(localStorage.getItem('ou_posts_bondhuu_full')||'[]');let messages=JSON.parse(localStorage.getItem('ou_msgs_full')||'[]');let notifs=JSON.parse(localStorage.getItem('ou_notifs_full')||'[]');
+let groups=JSON.parse(localStorage.getItem('ou_groups')||'[]');let rooms=JSON.parse(localStorage.getItem('ou_rooms')||'[]');let roomMsgs=JSON.parse(localStorage.getItem('ou_roomMsgs')||'[]');
+let albums=JSON.parse(localStorage.getItem('ou_albums')||'[]');let events=JSON.parse(localStorage.getItem('ou_events')||'[]');let pages=JSON.parse(localStorage.getItem('ou_pages')||'[]');let businesses=JSON.parse(localStorage.getItem('ou_biz')||'[]');let market=JSON.parse(localStorage.getItem('ou_market')||'[]');
+let allUsers=[{user_id:uid,name:profile.fullName,avatar:profile.avatar}];let photoBase64='';let albumFiles=[];
+function save(){localStorage.setItem('ou_profile_bondhuu_full',JSON.stringify(profile));localStorage.setItem('ou_posts_bondhuu_full',JSON.stringify(posts));localStorage.setItem('ou_msgs_full',JSON.stringify(messages));localStorage.setItem('ou_notifs_full',JSON.stringify(notifs));localStorage.setItem('ou_groups',JSON.stringify(groups));localStorage.setItem('ou_rooms',JSON.stringify(rooms));localStorage.setItem('ou_roomMsgs',JSON.stringify(roomMsgs));localStorage.setItem('ou_albums',JSON.stringify(albums));localStorage.setItem('ou_events',JSON.stringify(events));localStorage.setItem('ou_pages',JSON.stringify(pages));localStorage.setItem('ou_biz',JSON.stringify(businesses));localStorage.setItem('ou_market',JSON.stringify(market))}
+function renderProfile(){document.getElementById('fullNameDisplay').innerText=profile.fullName;document.getElementById('countryDisplay').innerText=profile.country;document.getElementById('bioDisplay').innerText=profile.bio;document.getElementById('preferDisplay').innerText=profile.prefer;document.getElementById('profilePic').src=profile.avatar;document.getElementById('myAvatarHome').src=profile.avatar;document.getElementById('myNameHome').innerText=profile.fullName;document.getElementById('followersCount').innerText=profile.followers;document.getElementById('followingCount').innerText=profile.following;document.getElementById('likesCount').innerText=profile.likes;document.getElementById('verifyBadge').style.display=profile.verified?'block':'none';document.getElementById('editFullName').value=profile.fullName;document.getElementById('editCountry').value=profile.country;document.getElementById('editBio').value=profile.bio;document.getElementById('editPrefer').value=profile.prefer;if(profile.cover)document.getElementById('coverDiv').style.background=`url(${profile.cover}) center/cover`}
+renderProfile();
+function saveProfile(){profile.fullName=document.getElementById('editFullName').value||profile.fullName;profile.country=document.getElementById('editCountry').value||profile.country;profile.bio=document.getElementById('editBio').value||profile.bio;profile.prefer=document.getElementById('editPrefer').value||profile.prefer;save();renderProfile();document.getElementById('profileEdit').style.display='none'}
+document.getElementById('avatarInput').addEventListener('change',e=>{let r=new FileReader();r.onload=()=>{profile.avatar=r.result;save();renderProfile()};r.readAsDataURL(e.target.files[0])});
+document.getElementById('coverInput').addEventListener('change',e=>{let r=new FileReader();r.onload=()=>{profile.cover=r.result;document.getElementById('coverDiv').style.background=`url(${r.result}) center/cover`;save()};r.readAsDataURL(e.target.files[0])});
+document.getElementById('photoInput').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{photoBase64=r.result;document.getElementById('preview').src=r.result;document.getElementById('preview').style.display='block'};r.readAsDataURL(f)});
+document.getElementById('albumInput').addEventListener('change',e=>{albumFiles=Array.from(e.target.files);let gp=document.getElementById('galleryPreview');gp.innerHTML='';albumFiles.forEach(f=>{let r=new FileReader();r.onload=()=>{let im=document.createElement('img');im.src=r.result;im.style='width:100%;height:70px;object-fit:cover;border-radius:8px';gp.appendChild(im);if(!photoBase64)photoBase64=r.result;document.getElementById('preview').src=r.result;document.getElementById('preview').style.display='block'};r.readAsDataURL(f)});if(albumFiles.length>0)albums.unshift({name:'Album '+(albums.length+1),count:albumFiles.length,cover:''});save();renderAlbums()});
+
+function renderFeed(){document.getElementById('feed').innerHTML=posts.map((p,i)=>`<div class="card"><div style="display:flex;gap:8px;align-items:center"><img src="${p.avatar}" class="avatar"><b>${p.user}</b> ${p.verified?'✔':''}<span class="online" style="margin-left:auto"></span></div><p style="margin:8px 0">${p.text}</p>${p.img?`<img class="post-img" src="${p.img}">`:''}<div class="action-row"><button onclick="likePost(${i})">❤️ Like (${p.likes||0})</button><button onclick="commentPost(${i})">💬 Comment (${p.comments||0})</button><button onclick="followUser()">➕ Follow</button><button onclick="sharePost(${i})">↗ Share</button></div><div>${(p.commentList||[]).map(c=>`<div style="background:#f0f2f5;padding:6px 10px;border-radius:8px;margin:4px 0"><b>${c.user}:</b> ${c.text}</div>`).join('')}</div></div>`).join('')||'<div class="card"><small>No stories yet</small></div>';document.getElementById('myPosts').innerHTML=posts.filter(p=>p.userId===uid).map(p=>`<div class="card"><p>${p.text}</p>${p.img?`<img class="post-img" src="${p.img}">`:''}</div>`).join('')}
+renderFeed();
+function addPost(){let t=document.getElementById('newPost').value;if(!t&&!photoBase64)return alert('Add story');posts.unshift({userId:uid,user:profile.fullName,avatar:profile.avatar,text:t,img:photoBase64,likes:0,comments:0,commentList:[],liked:false,verified:profile.verified});save();renderFeed();updateVerify();addNotif('Shared story: '+t.slice(0,20));document.getElementById('newPost').value='';photoBase64='';document.getElementById('preview').style.display='none';document.getElementById('galleryPreview').innerHTML='';document.getElementById('photoInput').value=''}
+function likePost(i){posts[i].liked=!posts[i].liked;if(posts[i].liked){posts[i].likes++;profile.likes++;}else{posts[i].likes=Math.max(0,posts[i].likes-1);profile.likes=Math.max(0,profile.likes-1)}save();renderProfile();renderFeed();updateVerify();addNotif('Like on post')}
+function commentPost(i){let txt=prompt('Comment:');if(!txt)return;posts[i].commentList.push({user:profile.fullName,text:txt});posts[i].comments++;save();renderFeed();addNotif('Comment: '+txt)}
+function followUser(){profile.following++;profile.followers++;save();renderProfile();updateVerify();addNotif('Follow');alert('Followed')}
+function sharePost(i){navigator.clipboard.writeText(posts[i].text);alert('Copied')}
+
+// Bondhuu Features
+function createGroup(){let name=document.getElementById('groupSearch').value||prompt('Group name:');if(!name)return;groups.unshift({name:name,members:1});save();renderGroups()}
+function renderGroups(){document.getElementById('groupsList').innerHTML=groups.map(g=>`<div class="card"><b>👪 ${g.name}</b><br><small>${g.members} members</small><br><button class="btn-blue" style="margin-top:6px;padding:6px 10px" onclick="this.innerText='Joined'">Join Group</button></div>`).join('')||'<div class="card"><small>No groups yet - create one</small></div>'}
+renderGroups();
+
+function createRoom(){let name=document.getElementById('roomName').value||prompt('Room name:');if(!name)return;rooms.unshift({name:name});save();renderRooms()}
+function renderRooms(){document.getElementById('roomsList').innerHTML=rooms.map(r=>`<div class="card">💬 <b>${r.name}</b> <span class="badge">LIVE</span> <button class="btn-light" style="float:right;padding:4px 8px" onclick="document.getElementById('roomInput').value='Joining ${r.name}: '">Join</button></div>`).join('')||'<div class="card"><small>No chat rooms - create one</small></div>'}
+renderRooms();
+function sendRoomMsg(){let t=document.getElementById('roomInput').value;if(!t)return;roomMsgs.push({from:profile.fullName,text:t});save();renderRoomChat();document.getElementById('roomInput').value=''}
+function renderRoomChat(){document.getElementById('roomChatBox').innerHTML=roomMsgs.map(m=>`<div><b>${m.from}:</b> ${m.text}</div>`).join('')}
+renderRoomChat();
+
+function renderAlbums(){document.getElementById('albumsList').innerHTML=albums.map(a=>`<div class="card" style="text-align:center">🖼️<br><b>${a.name}</b><br><small>${a.count} photos - Backup</small></div>`).join('');document.getElementById('photosList').innerHTML=posts.filter(p=>p.img).map(p=>`<div class="card"><img src="${p.img}" style="width:100%;height:120px;object-fit:cover;border-radius:8px"><small>${p.text.slice(0,20)}</small></div>`).join('')}
+renderAlbums();
+
+function createEvent(){let t=document.getElementById('eventTitle').value;let d=document.getElementById('eventDate').value;if(!t)return alert('Title needed');events.unshift({title:t,date:d});save();renderEvents()}
+function renderEvents(){document.getElementById('eventsList').innerHTML=events.map(e=>`<div class="card">📅 <b>${e.title}</b><br><small>${e.date}</small><br><button class="btn-blue" style="margin-top:6px;padding:6px 10px">Make Plans to Meet</button></div>`).join('')||'<div class="card"><small>No events</small></div>'}
+renderEvents();
+
+function createPage(){let q=document.getElementById('pageSearch').value||prompt('Artist/Page name:');if(!q)return;pages.unshift({name:q});save();renderPages()}
+function renderPages(){document.getElementById('pagesList').innerHTML=pages.map(p=>`<div class="card">⭐ <b>${p.name}</b><br><small>Latest news</small><br><button class="btn-blue" style="margin-top:6px;padding:6px 10px">Follow Page</button></div>`).join('')||'<div class="card"><small>No pages followed</small></div>'}
+renderPages();
+
+function createBusiness(){let n=document.getElementById('bizName').value||prompt('Business name:');if(!n)return;businesses.unshift({name:n});save();renderBiz()}
+function renderBiz(){document.getElementById('bizList').innerHTML=businesses.map(b=>`<div class="card">🏢 <b>${b.name}</b><br><small>Reviews • Hours • Pictures</small><br><button class="btn-light" style="margin-top:6px">View Business</button></div>`).join('')||'<div class="card"><small>No businesses</small></div>'}
+renderBiz();
+
+function createMarketItem(){let name=document.getElementById('itemName').value;let price=document.getElementById('itemPrice').value;if(!name)return alert('Item name');let img='';let f=document.getElementById('marketPhoto').files[0];if(f){let r=new FileReader();r.onload=()=>{market.unshift({name:name,price:price,img:r.result});save();renderMarket()};r.readAsDataURL(f)}else{market.unshift({name:name,price:price,img:''});save();renderMarket()}}
+function renderMarket(){document.getElementById('marketList').innerHTML=market.map(m=>`<div class="card"><img src="${m.img||'https://via.placeholder.com/200'}" style="width:100%;height:120px;object-fit:cover;border-radius:8px"><b>${m.name}</b><br><small>UGX ${m.price}</small><br><button class="btn-blue" style="margin-top:6px;padding:6px 10px">Buy Locally</button></div>`).join('')||'<div class="card"><small>Marketplace empty - sell locally</small></div>'}
+renderMarket();
+
+function renderMessages(){let s=(document.getElementById('msgSearch')?.value||'').toLowerCase();let f=allUsers.filter(u=>u.name.toLowerCase().includes(s));document.getElementById('onlineUsers').innerHTML=f.map(u=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><span><span class="online"></span> ${u.name}</span><button class="btn-light" style="padding:6px 10px" onclick="startChat('${u.name}')">Private Msg</button></div>`).join('');document.getElementById('chatBox').innerHTML=messages.map(m=>`<div><b>${m.from}:</b> ${m.text}</div>`).join('')}
+function startChat(n){document.getElementById('chatInput').value='Hi '+n+', ';document.getElementById('chatInput').focus()}
+function sendMessage(){let t=document.getElementById('chatInput').value;if(!t)return;messages.push({from:profile.fullName,text:t});save();renderMessages();document.getElementById('chatInput').value='';addNotif('Private message sent')}
+function renderFriends(){let s=(document.getElementById('friendSearch')?.value||'').toLowerCase();let f=allUsers.filter(u=>u.name.toLowerCase().includes(s)&&u.user_id!==uid);document.getElementById('friendsList').innerHTML=f.map(u=>`<div class="card" style="text-align:center"><img src="${u.avatar}" style="width:60px;height:60px;border-radius:50%"><div><b>${u.name}</b><br><small style="color:#31a24c">● Online</small></div><button class="btn-blue" style="margin-top:6px;padding:6px 10px" onclick="followUser()">Connect</button></div>`).join('')||'<div class="card"><small>No friends online - invite</small></div>'}
+function addNotif(t){notifs.unshift({text:t,time:new Date().toLocaleTimeString()});save();document.getElementById('notifList').innerHTML=notifs.map(n=>`<div class="card">🔔 ${n.text}<br><small>${n.time}</small></div>`).join('')}
+function updateVerify(){let pc=posts.filter(p=>p.userId===uid).length;let lc=profile.likes;let fc=profile.followers;let fg=profile.following;document.getElementById('taskPostsText').innerText=`${pc}/10`;document.getElementById('barPosts').style.width=Math.min(100,pc*10)+'%';document.getElementById('tickPosts').innerText=pc>=10?'✅':'';document.getElementById('taskLikesText').innerText=`${lc}/100`;document.getElementById('barLikes').style.width=Math.min(100,lc)+'%';document.getElementById('tickLikes').innerText=lc>=100?'✅':'';document.getElementById('taskFollowersText').innerText=`${fc}/100`;document.getElementById('barFollowers').style.width=Math.min(100,fc)+'%';document.getElementById('tickFollowers').innerText=fc>=100?'✅':'';document.getElementById('taskFollowingText').innerText=`${fg}/20`;document.getElementById('barFollowing').style.width=Math.min(100,fg*5)+'%';document.getElementById('tickFollowing').innerText=fg>=20?'✅':'';let done=pc>=10&&lc>=100&&fc>=100&&fg>=20;let b=document.getElementById('verifyBtn');b.innerText=profile.verified?'✔ Verified':done?'✔ Verify Now':'🔒 Locked'}
+function verifyNow(){let pc=posts.filter(p=>p.userId===uid).length;if(pc>=10&&profile.likes>=100&&profile.followers>=100&&profile.following>=20){profile.verified=true;save();renderProfile();renderFeed();updateVerify();alert('Official Verified ✔')}else alert('Complete tasks')}
+updateVerify();renderFriends();renderMessages();
+let channel=null;try{let supabaseClient=supabase.createClient("https://hhwltujbsqsniensmurq.supabase.co","sb_publishable_FqL6vMCT0ChrAV6pamuWlA_PgVxvWJM");channel=supabaseClient.channel('bondhuu-full',{config:{presence:{key:uid}}});channel.on('presence',{event:'sync'},()=>{let st=channel.presenceState();allUsers=[];for(let k in st)allUsers.push(...st[k]);document.getElementById('onlineCount').innerText=`• ${allUsers.length} online`;renderFriends();renderMessages()});channel.subscribe(async s=>{if(s==='SUBSCRIBED')await channel.track({user_id:uid,name:profile.fullName,avatar:profile.avatar})})}catch(e){}
+</script>
+</body>
+  </html>
